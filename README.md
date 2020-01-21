@@ -8,6 +8,9 @@ go-plantuml generates plantuml diagrams from go source files or directories.
 go get -u github.com/bykof/go-plantuml
 ```
 
+Please consider that `$GOPATH/bin` should be on our `$PATH`.
+
+
 ## Usage
 
 ```bash
@@ -25,6 +28,54 @@ Flags:
 Use "go-plantuml [command] --help" for more information about a command.
 
 ```
+
+## Example
+
+For example we have to files in the directory `testGraph`.
+
+```go
+// addres.go
+package testGraph
+
+type (
+	Address struct {
+		Street     string
+		City       string
+		PostalCode string
+		Country    string
+	}
+)
+
+func (address Address) FullAddress(withPostalCode bool) string {
+    return ""
+}
+```
+
+```go
+// user.go
+package testGraph
+
+type (
+	User struct {
+		FirstName      string
+		LastName       string
+		age            uint8
+		Address        Address
+		privateAddress Address
+	}
+)
+
+func (user *User) SetFirstName(firstName string) {}
+```
+
+Then we run `go-plantuml generate` or `go-plantuml generate -d . -o graph.puml`.
+
+This will create a `graph.puml` file and check for .go files inside your current directory.
+
+Which looks like this:
+<p align="center">
+  <img width="460" height="300" src="https://raw.githubusercontent.com/bykof/go-plantuml/master/docs/assets/graph.png">
+</p>
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
