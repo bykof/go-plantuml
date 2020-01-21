@@ -74,7 +74,7 @@ This will create a `graph.puml` file and check for .go files inside your current
 
 Which looks like this:
 <p align="center">
-  <img width="460" height="300" src="https://raw.githubusercontent.com/bykof/go-plantuml/master/docs/assets/graph.png">
+  <img src="https://raw.githubusercontent.com/bykof/go-plantuml/master/docs/assets/graph.png">
 </p>
 
 ## Contributing
