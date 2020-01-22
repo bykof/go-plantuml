@@ -33,7 +33,7 @@ Use "go-plantuml [command] --help" for more information about a command.
 
 ```bash
 Usage:
-  go-plantuml generate [OPTIONS] [flags]
+  go-plantuml generate [flags]
 
 Flags:
   -d, --directories strings   the go source directories (default [.])

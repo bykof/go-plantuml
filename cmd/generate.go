@@ -15,7 +15,7 @@ var (
 	files       []string
 	recursive   bool
 	generateCmd = &cobra.Command{
-		Use:   "generate [OPTIONS]",
+		Use:   "generate",
 		Short: "Generate a plantuml diagram from given paths",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
