@@ -69,24 +69,30 @@ func ParseFile(filePath string) domain.Classes {
 
 	for _, decl := range node.Decls {
 		if functionDecl, ok := decl.(*ast.FuncDecl); ok {
+			var className string
+
 			// Function is not bound to a struct
 			if functionDecl.Recv == nil {
 				continue
 			}
 
-			className := ""
-			if ident, ok := functionDecl.Recv.List[0].Type.(*ast.Ident); ok {
-				className = ident.Name
+			classField, err := exprToField("", functionDecl.Recv.List[0].Type)
+			if err != nil {
+				log.Fatal(err)
 			}
 
-			if starExpr, ok := functionDecl.Recv.List[0].Type.(*ast.StarExpr); ok {
-				className = starExpr.X.(*ast.Ident).Name
+			className = classField.Type.ToString()
+
+			if len(classes) == 0 {
+				return classes
 			}
 
 			classIndex := classes.ClassIndexByName(className)
+
 			if classIndex != -1 {
-				function := domain.Function{}
-				function.Name = functionDecl.Name.Name
+				function := domain.Function{
+					Name: functionDecl.Name.Name,
+				}
 				if functionDecl.Type.Params != nil {
 					function.Parameters = ParseFields(functionDecl.Type.Params.List)
 				}
@@ -128,7 +134,6 @@ func formatFuncType(function domain.Function) string {
 	}
 	return fmt.Sprintf("func(%s) %s", strings.Join(parameters, ", "), strings.Join(returns, ", "))
 }
-
 
 func startExprToField(name string, starExpr *ast.StarExpr) domain.Field {
 	if expr, ok := starExpr.X.(*ast.SelectorExpr); ok {
@@ -239,8 +244,8 @@ func funcTypeToField(fieldName string, fieldType *ast.FuncType) domain.Field {
 
 func structTypeToField(fieldName string, fieldType *ast.StructType) domain.Field {
 	return domain.Field{
-		Name:     fieldName,
-		Type:     "interface{}",
+		Name: fieldName,
+		Type: "interface{}",
 	}
 }
 
