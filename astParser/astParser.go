@@ -87,9 +87,6 @@ func ParseFile(filePath string) domain.Classes {
 			if classIndex != -1 {
 				function := domain.Function{}
 				function.Name = functionDecl.Name.Name
-				if functionDecl.Type == nil {
-					print(functionDecl)
-				}
 				if functionDecl.Type.Params != nil {
 					function.Parameters = ParseFields(functionDecl.Type.Params.List)
 				}
@@ -103,13 +100,35 @@ func ParseFile(filePath string) domain.Classes {
 	return classes
 }
 
-func formatArrayType(ident *ast.Ident) string {
-	return fmt.Sprintf("[]%s", ident.Name)
+func formatArrayType(typeName string) string {
+	return fmt.Sprintf("[]%s", typeName)
 }
 
 func formatEllipsis(typeName string) string {
 	return fmt.Sprintf("... %s", typeName)
 }
+
+func formatMapType(keyType string, valueType string) string {
+	return fmt.Sprintf("map[%s]%s", keyType, valueType)
+}
+
+func formatFunctionField(field domain.Field) string {
+	return fmt.Sprintf("%s %s", field.Name, field.Type)
+}
+
+func formatFuncType(function domain.Function) string {
+	var parameters []string
+	var returns []string
+	for _, parameterField := range function.Parameters {
+		parameters = append(parameters, formatFunctionField(parameterField))
+	}
+
+	for _, returnField := range function.ReturnFields {
+		returns = append(parameters, formatFunctionField(returnField))
+	}
+	return fmt.Sprintf("func(%s) %s", strings.Join(parameters, ", "), strings.Join(returns, ", "))
+}
+
 
 func startExprToField(name string, starExpr *ast.StarExpr) domain.Field {
 	if expr, ok := starExpr.X.(*ast.SelectorExpr); ok {
@@ -153,9 +172,15 @@ func selectorExprToField(fieldName string, fieldType *ast.SelectorExpr) domain.F
 }
 
 func arrayTypeToField(fieldName string, fieldType *ast.ArrayType) domain.Field {
+	var typeName string
+	eltField, err := exprToField("", fieldType.Elt)
+
+	if err == nil && eltField != nil {
+		typeName = eltField.Type.ToString()
+	}
 	return domain.Field{
 		Name: fieldName,
-		Type: domain.Type(formatArrayType(fieldType.Elt.(*ast.Ident))),
+		Type: domain.Type(formatArrayType(typeName)),
 	}
 }
 
@@ -179,6 +204,46 @@ func interfaceTypeToField(fieldName string, fieldType *ast.InterfaceType) domain
 	}
 }
 
+func mapTypeToField(fieldName string, fieldType *ast.MapType) domain.Field {
+	var err error
+	var keyType string
+	var valueType string
+	keyField, err := exprToField("", fieldType.Key)
+	if err == nil && keyField != nil {
+		keyType = keyField.Type.ToString()
+	}
+
+	valueField, err := exprToField("", fieldType.Value)
+	if err == nil && valueField != nil {
+		valueType = valueField.Type.ToString()
+	}
+	return domain.Field{
+		Name: fieldName,
+		Type: domain.Type(formatMapType(keyType, valueType)),
+	}
+}
+
+func funcTypeToField(fieldName string, fieldType *ast.FuncType) domain.Field {
+	function := domain.Function{}
+	if fieldType.Params != nil {
+		function.Parameters = ParseFields(fieldType.Params.List)
+	}
+	if fieldType.Results != nil {
+		function.ReturnFields = ParseFields(fieldType.Results.List)
+	}
+	return domain.Field{
+		Name: fieldName,
+		Type: domain.Type(formatFuncType(function)),
+	}
+}
+
+func structTypeToField(fieldName string, fieldType *ast.StructType) domain.Field {
+	return domain.Field{
+		Name:     fieldName,
+		Type:     "interface{}",
+	}
+}
+
 func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 	switch fieldType := expr.(type) {
 	case *ast.Ident:
@@ -198,6 +263,15 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 		return &field, nil
 	case *ast.InterfaceType:
 		field := interfaceTypeToField(fieldName, fieldType)
+		return &field, nil
+	case *ast.MapType:
+		field := mapTypeToField(fieldName, fieldType)
+		return &field, nil
+	case *ast.FuncType:
+		field := funcTypeToField(fieldName, fieldType)
+		return &field, nil
+	case *ast.StructType:
+		field := structTypeToField(fieldName, fieldType)
 		return &field, nil
 	default:
 		return nil, fmt.Errorf("unknown Field Type %s", reflect.TypeOf(expr).String())
