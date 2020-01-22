@@ -6,34 +6,28 @@ import (
 )
 
 func startExprToField(name string, starExpr *ast.StarExpr) domain.Field {
-	if expr, ok := starExpr.X.(*ast.SelectorExpr); ok {
-		return domain.Field{
-			Name:     name,
-			Type:     domain.Type(expr.Sel.Name),
-			Nullable: true,
-		}
+	var fieldType string
+	xField, err := exprToField("", starExpr.X)
+	if err == nil && xField != nil {
+		fieldType = xField.Type.ToString()
 	}
-
-	if ident, ok := starExpr.X.(*ast.Ident); ok {
-		return domain.Field{
-			Name:     name,
-			Type:     domain.Type(ident.Name),
-			Nullable: true,
-		}
+	return domain.Field{
+		Name:     name,
+		Type:     domain.Type(formatPointerType(fieldType)),
+		Nullable: true,
 	}
-	return domain.Field{}
 }
 
-func identToField(fieldName string, fieldType *ast.Ident) domain.Field {
+func identToField(fieldName string, ident *ast.Ident) domain.Field {
 	return domain.Field{
 		Name: fieldName,
-		Type: domain.Type(fieldType.Name),
+		Type: domain.Type(ident.Name),
 	}
 }
 
-func selectorExprToField(fieldName string, fieldType *ast.SelectorExpr) domain.Field {
+func selectorExprToField(fieldName string, selectorExpr *ast.SelectorExpr) domain.Field {
 	var packageName string
-	selectorField, err := exprToField("", fieldType.X)
+	selectorField, err := exprToField("", selectorExpr.X)
 
 	if err == nil && selectorField != nil {
 		packageName = selectorField.Type.ToString()
@@ -41,14 +35,14 @@ func selectorExprToField(fieldName string, fieldType *ast.SelectorExpr) domain.F
 
 	return domain.Field{
 		Name:    fieldName,
-		Type:    domain.Type(fieldType.Sel.Name),
+		Type:    domain.Type(selectorExpr.Sel.Name),
 		Package: domain.Package(packageName),
 	}
 }
 
-func arrayTypeToField(fieldName string, fieldType *ast.ArrayType) domain.Field {
+func arrayTypeToField(fieldName string, arrayType *ast.ArrayType) domain.Field {
 	var typeName string
-	eltField, err := exprToField("", fieldType.Elt)
+	eltField, err := exprToField("", arrayType.Elt)
 
 	if err == nil && eltField != nil {
 		typeName = eltField.Type.ToString()
@@ -59,9 +53,9 @@ func arrayTypeToField(fieldName string, fieldType *ast.ArrayType) domain.Field {
 	}
 }
 
-func ellipsisToField(fieldName string, fieldType *ast.Ellipsis) domain.Field {
+func ellipsisToField(fieldName string, ellipsis *ast.Ellipsis) domain.Field {
 	var typeName string
-	eltField, err := exprToField("", fieldType.Elt)
+	eltField, err := exprToField("", ellipsis.Elt)
 
 	if err == nil && eltField != nil {
 		typeName = eltField.Type.ToString()
@@ -72,23 +66,23 @@ func ellipsisToField(fieldName string, fieldType *ast.Ellipsis) domain.Field {
 	}
 }
 
-func interfaceTypeToField(fieldName string, fieldType *ast.InterfaceType) domain.Field {
+func interfaceTypeToField(fieldName string, interfaceType *ast.InterfaceType) domain.Field {
 	return domain.Field{
 		Name: fieldName,
 		Type: domain.Type("interface"),
 	}
 }
 
-func mapTypeToField(fieldName string, fieldType *ast.MapType) domain.Field {
+func mapTypeToField(fieldName string, mapType *ast.MapType) domain.Field {
 	var err error
 	var keyType string
 	var valueType string
-	keyField, err := exprToField("", fieldType.Key)
+	keyField, err := exprToField("", mapType.Key)
 	if err == nil && keyField != nil {
 		keyType = keyField.Type.ToString()
 	}
 
-	valueField, err := exprToField("", fieldType.Value)
+	valueField, err := exprToField("", mapType.Value)
 	if err == nil && valueField != nil {
 		valueType = valueField.Type.ToString()
 	}
@@ -98,13 +92,13 @@ func mapTypeToField(fieldName string, fieldType *ast.MapType) domain.Field {
 	}
 }
 
-func funcTypeToField(fieldName string, fieldType *ast.FuncType) domain.Field {
+func funcTypeToField(fieldName string, funcType *ast.FuncType) domain.Field {
 	function := domain.Function{}
-	if fieldType.Params != nil {
-		function.Parameters = ParseFields(fieldType.Params.List)
+	if funcType.Params != nil {
+		function.Parameters = ParseFields(funcType.Params.List)
 	}
-	if fieldType.Results != nil {
-		function.ReturnFields = ParseFields(fieldType.Results.List)
+	if funcType.Results != nil {
+		function.ReturnFields = ParseFields(funcType.Results.List)
 	}
 	return domain.Field{
 		Name: fieldName,
@@ -112,16 +106,16 @@ func funcTypeToField(fieldName string, fieldType *ast.FuncType) domain.Field {
 	}
 }
 
-func structTypeToField(fieldName string, fieldType *ast.StructType) domain.Field {
+func structTypeToField(fieldName string, structType *ast.StructType) domain.Field {
 	return domain.Field{
 		Name: fieldName,
 		Type: "interface{}",
 	}
 }
 
-func chanTypeToField(fieldName string, fieldType *ast.ChanType) domain.Field {
+func chanTypeToField(fieldName string, chanType *ast.ChanType) domain.Field {
 	var valueFieldType string
-	valueField, err := exprToField("", fieldType.Value)
+	valueField, err := exprToField("", chanType.Value)
 
 	if err == nil && valueField != nil {
 		valueFieldType = valueField.Type.ToString()

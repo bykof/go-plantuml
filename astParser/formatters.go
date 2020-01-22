@@ -26,6 +26,10 @@ func formatFunctionReturnField(field domain.Field) string {
 	return field.Type.ToString()
 }
 
+func formatPointerType(fieldType string) string {
+	return fmt.Sprintf("*%s", fieldType)
+}
+
 func formatFuncType(function domain.Function) string {
 	var parameters []string
 	var returns []string
