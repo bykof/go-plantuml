@@ -44,7 +44,7 @@ func FormatParameters(parameters domain.Fields) string {
 }
 
 func FormatReturnField(returnField domain.Field) string {
-	return fmt.Sprintf("%s", returnField.Type)
+	return string(returnField.Type)
 }
 
 func FormatReturnFields(returnFields domain.Fields) string {

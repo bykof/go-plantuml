@@ -200,7 +200,7 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 		field := interfaceTypeToField(fieldName, fieldType)
 		return &field, nil
 	default:
-		return nil, errors.New(fmt.Sprintf("unknown Field Type %s", reflect.TypeOf(expr).String()))
+		return nil, fmt.Errorf("unknown Field Type %s", reflect.TypeOf(expr).String())
 	}
 }
 
