@@ -105,7 +105,7 @@ func FormatPlantUML(classes domain.Classes) string {
 }
 
 func FormatRelation(class domain.Class, class2 domain.Class) string {
-	return fmt.Sprintf("%s -- %s", class.Name, class2.Name)
+	return fmt.Sprintf("%s --> %s", class.Name, class2.Name)
 }
 
 func FormatRelations(classes domain.Classes) string {
