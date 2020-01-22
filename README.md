@@ -31,6 +31,18 @@ Use "go-plantuml [command] --help" for more information about a command.
 
 ```
 
+```bash
+Usage:
+  go-plantuml generate [OPTIONS] [flags]
+
+Flags:
+  -d, --directories strings   the go source directories (default [.])
+  -f, --files strings         the go source files
+  -h, --help                  help for generate
+  -o, --out string            the graphfile (default "graph.puml")
+  -r, --recursive             traverse the given directories recursively
+```
+
 ## Example
 
 For example we have to files in the directory `testGraph`.
