@@ -36,7 +36,7 @@ Use "go-plantuml [command] --help" for more information about a command.
 For example we have to files in the directory `testGraph`.
 
 ```go
-// addres.go
+// address.go
 package testGraph
 
 type (
