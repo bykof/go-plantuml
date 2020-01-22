@@ -15,7 +15,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "go-plantuml",
 	Short: "Generate plantuml diagrams from go sources",
-	Long: ``,
+	Long:  ``,
 }
 
 func Execute() {
