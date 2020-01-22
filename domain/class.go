@@ -20,12 +20,12 @@ func (class Class) HasRelation(toClass Class) bool {
 	return false
 }
 
-func (classes *Classes) ClassByName(name string) *Class {
+func (classes Classes) ClassByName(name string) *Class {
 	if classes == nil {
 		return nil
 	}
 
-	for _, class := range *classes {
+	for _, class := range classes {
 		if class.Name == name {
 			return &class
 		}
