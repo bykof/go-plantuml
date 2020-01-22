@@ -135,6 +135,10 @@ func formatFuncType(function domain.Function) string {
 	return fmt.Sprintf("func(%s) %s", strings.Join(parameters, ", "), strings.Join(returns, ", "))
 }
 
+func formatChanType(valueType string) string {
+	return fmt.Sprintf("chan %s", valueType)
+}
+
 func startExprToField(name string, starExpr *ast.StarExpr) domain.Field {
 	if expr, ok := starExpr.X.(*ast.SelectorExpr); ok {
 		return domain.Field{
@@ -249,6 +253,19 @@ func structTypeToField(fieldName string, fieldType *ast.StructType) domain.Field
 	}
 }
 
+func chanTypeToField(fieldName string, fieldType *ast.ChanType) domain.Field {
+	var valueFieldType string
+	valueField, err := exprToField("", fieldType.Value)
+
+	if err == nil && valueField != nil {
+		valueFieldType = valueField.Type.ToString()
+	}
+	return domain.Field{
+		Name: fieldName,
+		Type: domain.Type(formatChanType(valueFieldType)),
+	}
+}
+
 func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 	switch fieldType := expr.(type) {
 	case *ast.Ident:
@@ -277,6 +294,9 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 		return &field, nil
 	case *ast.StructType:
 		field := structTypeToField(fieldName, fieldType)
+		return &field, nil
+	case *ast.ChanType:
+		field := chanTypeToField(fieldName, fieldType)
 		return &field, nil
 	default:
 		return nil, fmt.Errorf("unknown Field Type %s", reflect.TypeOf(expr).String())
