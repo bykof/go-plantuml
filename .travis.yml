@@ -10,7 +10,7 @@ env: GO111MODULE=on
 # responsibility to keep their compiler up to date.
 #  - 1.13.x - change back if https://github.com/DimensionDataResearch/dd-cloud-compute-terraform/issues/144 has been fixed
 go:
-  - 1.12.x
+  - 1.13.x
 
 # Only clone the most recent commit.
 git:
