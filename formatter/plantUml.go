@@ -101,7 +101,7 @@ func FormatClasses(classes domain.Classes) string {
 func FormatPlantUML(classes domain.Classes) string {
 	formattedClasses := FormatClasses(classes)
 	formattedRelations := FormatRelations(classes)
-	return fmt.Sprintf("@startuml\n%s\n%s\n@enduml", formattedClasses, formattedRelations)
+	return FormatPlantUMLWrapper(formattedClasses, formattedRelations)
 }
 
 func FormatRelation(class domain.Class, class2 domain.Class) string {

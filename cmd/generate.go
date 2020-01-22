@@ -28,10 +28,7 @@ var (
 				classes = append(classes, astParser.ParseDirectory(directory, recursive)...)
 			}
 
-			formattedClasses := formatter.FormatClasses(classes)
-			formattedRelations := formatter.FormatRelations(classes)
-
-			formattedPlantUML := formatter.FormatPlantUMLWrapper(formattedClasses, formattedRelations)
+			formattedPlantUML := formatter.FormatPlantUML(classes)
 			err := ioutil.WriteFile(outPath, []byte(formattedPlantUML), 0644)
 			if err != nil {
 				log.Fatal(err)

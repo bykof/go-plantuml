@@ -13,5 +13,8 @@ type (
 )
 
 func (function Function) IsPrivate() bool {
-	return unicode.IsLower(rune(function.Name[0]))
+	if len(function.Name) > 0 {
+		return unicode.IsLower(rune(function.Name[0]))
+	}
+	return false
 }
