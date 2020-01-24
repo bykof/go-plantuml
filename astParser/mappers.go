@@ -5,14 +5,14 @@ import (
 	"go/ast"
 )
 
-func startExprToField(name string, starExpr *ast.StarExpr) domain.Field {
+func starExprToField(fieldName string, starExpr *ast.StarExpr) domain.Field {
 	var fieldType string
 	xField, err := exprToField("", starExpr.X)
 	if err == nil && xField != nil {
 		fieldType = xField.Type.ToString()
 	}
 	return domain.Field{
-		Name:     name,
+		Name:     fieldName,
 		Type:     domain.Type(formatPointerType(fieldType)),
 		Nullable: true,
 	}

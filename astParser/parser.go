@@ -115,7 +115,7 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 		field := selectorExprToField(fieldName, fieldType)
 		return &field, nil
 	case *ast.StarExpr:
-		field := startExprToField(fieldName, fieldType)
+		field := starExprToField(fieldName, fieldType)
 		return &field, nil
 	case *ast.ArrayType:
 		field := arrayTypeToField(fieldName, fieldType)
