@@ -51,3 +51,11 @@ func Test_selectorExprToField(t *testing.T) {
 		},
 	)
 }
+
+func Test_arrayTypeToField(t *testing.T) {}
+func Test_ellipsisToField(t *testing.T) {}
+func Test_interfaceTypeToField(t *testing.T) {}
+func Test_mapTypeToField(t *testing.T) {}
+func Test_funcTypeToField(t *testing.T) {}
+func Test_structTypeToField(t *testing.T) {}
+func Test_chanTypeToField(t *testing.T) {}
