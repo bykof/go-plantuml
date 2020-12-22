@@ -42,6 +42,13 @@ func (classes Classes) ClassIndexByName(name string) int {
 	return -1
 }
 
+func (classes Classes) ClassIndexByPointerName(pointerName string) int {
+	if pointerName[0] == '*' {
+		return classes.ClassIndexByName(pointerName[1:])
+	}
+	return -1
+}
+
 func (classes Classes) AllPackages() Packages {
 	var packages Packages
 	checked := make(map[Package]bool)

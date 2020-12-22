@@ -13,7 +13,7 @@ func starExprToField(fieldName string, starExpr *ast.StarExpr) domain.Field {
 	}
 	return domain.Field{
 		Name:     fieldName,
-		Type:     domain.Type(formatPointerType(fieldType)),
+		Type:     domain.Type(formatPointer(fieldType)),
 		Nullable: true,
 	}
 }

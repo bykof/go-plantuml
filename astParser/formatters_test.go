@@ -64,6 +64,6 @@ func Test_formatChanType (t *testing.T) {
 }
 
 func Test_formatPointerType(t *testing.T) {
-	assert.Equal(t, "*test", formatPointerType("test"))
-	assert.Equal(t, "*", formatPointerType(""))
+	assert.Equal(t, "*test", formatPointer("test"))
+	assert.Equal(t, "*", formatPointer(""))
 }

@@ -70,6 +70,7 @@ func ParseFile(filePath string) domain.Classes {
 	for _, decl := range node.Decls {
 		if functionDecl, ok := decl.(*ast.FuncDecl); ok {
 			var className string
+			var functionName string
 
 			// Function is not bound to a struct
 			if functionDecl.Recv == nil {
@@ -87,23 +88,42 @@ func ParseFile(filePath string) domain.Classes {
 				return classes
 			}
 
+			isPointer := false
 			classIndex := classes.ClassIndexByName(className)
 
-			if classIndex != -1 {
-				function := domain.Function{
-					Name: functionDecl.Name.Name,
+			if classIndex < 0 {
+				classIndex = classes.ClassIndexByPointerName(className)
+				if classIndex > -1 {
+					isPointer = true
 				}
-				if functionDecl.Type.Params != nil {
-					function.Parameters = ParseFields(functionDecl.Type.Params.List)
-				}
-				if functionDecl.Type.Results != nil {
-					function.ReturnFields = ParseFields(functionDecl.Type.Results.List)
-				}
-				classes[classIndex].Functions = append(classes[classIndex].Functions, function)
 			}
+
+			if isPointer {
+				functionName = formatPointer(functionDecl.Name.Name)
+			} else {
+				functionName = functionDecl.Name.Name
+			}
+
+			function := createFunction(functionName, functionDecl)
+
+
+			classes[classIndex].Functions = append(classes[classIndex].Functions, function)
 		}
 	}
 	return classes
+}
+
+func createFunction(name string, functionDecl *ast.FuncDecl) domain.Function {
+	function := domain.Function{
+		Name: name,
+	}
+	if functionDecl.Type.Params != nil {
+		function.Parameters = ParseFields(functionDecl.Type.Params.List)
+	}
+	if functionDecl.Type.Results != nil {
+		function.ReturnFields = ParseFields(functionDecl.Type.Results.List)
+	}
+	return function
 }
 
 func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
