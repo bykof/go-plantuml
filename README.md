@@ -49,37 +49,43 @@ For example we have to files in the directory `testGraph`.
 
 ```go
 // address.go
-package testGraph
+package models
 
 type (
 	Address struct {
-		Street     string
-		City       string
-		PostalCode string
-		Country    string
+		Street        string
+		City          string
+		PostalCode    string
+		Country       string
+		CustomChannel chan string
+		AnInterface   *interface{}
 	}
 )
 
 func (address Address) FullAddress(withPostalCode bool) string {
-    return ""
+	return ""
 }
 ```
 
 ```go
 // user.go
-package testGraph
+package models
+
+import "github.com/bykof/go-plantuml/test/address/models"
 
 type (
 	User struct {
 		FirstName      string
 		LastName       string
-		age            uint8
-		Address        Address
-		privateAddress Address
+		Age            uint8
+		Address        *models.Address
+		privateAddress models.Address
 	}
 )
 
-func (user *User) SetFirstName(firstName string) {}
+func (user *User) SetFirstName(firstName string) {
+	user.FirstName = firstName
+}
 ```
 
 Then we run `go-plantuml generate` or `go-plantuml generate -d . -o graph.puml`.

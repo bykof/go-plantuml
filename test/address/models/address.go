@@ -2,12 +2,12 @@ package models
 
 type (
 	Address struct {
-		Street     string
-		City       string
-		PostalCode string
-		Country    string
-		Bla        chan string
-		A          *interface{}
+		Street        string
+		City          string
+		PostalCode    string
+		Country       string
+		CustomChannel chan string
+		AnInterface   *interface{}
 	}
 )
 
