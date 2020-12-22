@@ -106,7 +106,6 @@ func ParseFile(filePath string) domain.Classes {
 
 			function := createFunction(functionName, functionDecl)
 
-
 			classes[classIndex].Functions = append(classes[classIndex].Functions, function)
 		}
 	}

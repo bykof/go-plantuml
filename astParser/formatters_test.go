@@ -58,7 +58,7 @@ func Test_formatFuncType(t *testing.T) {
 	)
 }
 
-func Test_formatChanType (t *testing.T) {
+func Test_formatChanType(t *testing.T) {
 	assert.Equal(t, "chan test", formatChanType("test"))
 	assert.Equal(t, "chan ", formatChanType(""))
 }
