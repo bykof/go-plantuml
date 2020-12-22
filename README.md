@@ -45,7 +45,7 @@ Flags:
 
 ## Example
 
-For example we have to files in the directory `testGraph`.
+For example we have to files in the directory `test`.
 
 ```go
 // address.go
