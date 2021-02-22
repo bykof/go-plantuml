@@ -50,11 +50,3 @@ func TestClasses_ClassIndexByPointerName(t *testing.T) {
 	assert.Equal(t, 2, classes.ClassIndexByPointerName("*C"))
 	assert.Equal(t, -1, classes.ClassIndexByPointerName("C"))
 }
-
-func TestClasses_AllPackages(t *testing.T) {
-	classA := Class{Package: Package("A")}
-	classB := Class{Package: Package("B")}
-	classC := Class{Package: Package("C")}
-	classes := Classes{classA, classB, classC}
-	assert.Equal(t, Packages{Package("A"), Package("B"), Package("C")}, classes.AllPackages())
-}

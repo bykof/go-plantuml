@@ -48,17 +48,3 @@ func (classes Classes) ClassIndexByPointerName(pointerName string) int {
 	}
 	return -1
 }
-
-func (classes Classes) AllPackages() Packages {
-	var packages Packages
-	checked := make(map[Package]bool)
-	for _, class := range classes {
-		if _, found := checked[class.Package]; !found {
-			if class.Package != "" {
-				checked[class.Package] = true
-				packages = append(packages, class.Package)
-			}
-		}
-	}
-	return packages
-}

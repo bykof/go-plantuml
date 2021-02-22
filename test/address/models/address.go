@@ -1,6 +1,10 @@
 package models
 
 type (
+	AddressLike interface {
+		FullAddress(withPostalCode bool) string
+	}
+
 	Address struct {
 		Street        string
 		City          string

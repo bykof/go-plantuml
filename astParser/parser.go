@@ -61,8 +61,13 @@ func ParseFile(filePath string) domain.Classes {
 			if !ok {
 				continue
 			}
-			class := domain.Class{Name: name, Package: domain.Package(node.Name.Name)}
-			class.Fields = ParseFields(structType.Fields.List)
+
+			class := domain.Class{
+				Name:    name,
+				Package: domain.Package(dotNotatedModulePath(filePath, node.Name.Name)),
+				Fields:  ParseFields(structType.Fields.List),
+			}
+
 			classes = append(classes, class)
 		}
 	}
@@ -160,6 +165,15 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 	default:
 		return nil, fmt.Errorf("unknown Field Type %s", reflect.TypeOf(expr).String())
 	}
+}
+
+func dotNotatedModulePath(filePath string, moduleName string) string {
+	dirPath := filepath.Dir(filePath)
+	index := strings.LastIndex(dirPath, fmt.Sprintf("/%s", moduleName))
+	// add the module name plus one place for the "/" character
+	index += len(moduleName) + 1
+	dirPath = strings.ReplaceAll(dirPath, "/", ".")
+	return dirPath[:index]
 }
 
 func ParseField(field *ast.Field) (*domain.Field, error) {

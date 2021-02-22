@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+const PlantUMLPackageFormat = `package %s{
+%s
+}`
+
 const PlantUMLClassFormat = `class %s {
 %s
 %s
@@ -86,7 +90,8 @@ func FormatFunctions(functions domain.Functions) string {
 func FormatClass(class domain.Class) string {
 	formattedFields := FormatFields(class.Fields)
 	formattedFunctions := FormatFunctions(class.Functions)
-	return fmt.Sprintf(PlantUMLClassFormat, class.Name, formattedFields, formattedFunctions)
+	formattedClass := fmt.Sprintf(PlantUMLClassFormat, class.Name, formattedFields, formattedFunctions)
+	return fmt.Sprintf(PlantUMLPackageFormat, class.Package, formattedClass)
 }
 
 func FormatClasses(classes domain.Classes) string {
