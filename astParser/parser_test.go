@@ -8,6 +8,12 @@ import (
 func Test_dotNotatedModulePath(t *testing.T) {
 	assert.Equal(
 		t,
+		"models",
+		dotNotatedModulePath("address.go", "models"),
+	)
+
+	assert.Equal(
+		t,
 		"test.address.models",
 		dotNotatedModulePath("test/address/models/address.go", "models"),
 	)
