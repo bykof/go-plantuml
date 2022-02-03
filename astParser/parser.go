@@ -174,11 +174,11 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 
 func dotNotatedModulePath(filePath string, moduleName string) string {
 	dirPath := filepath.Dir(filePath)
-	index := strings.LastIndex(dirPath, fmt.Sprintf("/%s", moduleName))
-	// add the module name plus one place for the "/" character
-	index += len(moduleName) + 1
-	dirPath = strings.ReplaceAll(dirPath, "/", ".")
-	return dirPath[:index]
+	modulePath := strings.ReplaceAll(dirPath, "/", ".")
+	if modulePath == "." {
+		return moduleName
+	}
+	return modulePath
 }
 
 func ParseField(field *ast.Field) (*domain.Field, error) {
