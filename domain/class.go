@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"strings"
+)
+
 type (
 	Class struct {
 		Name      string
@@ -13,7 +17,12 @@ type (
 
 func (class Class) HasRelation(toClass Class) bool {
 	for _, field := range class.Fields {
-		if string(field.Type) == toClass.Name {
+		fieldTypeName := string(field.Type)
+		if strings.HasPrefix(fieldTypeName, "*") {
+			fieldTypeName = fieldTypeName[1:]
+		}
+
+		if fieldTypeName == toClass.Name {
 			return true
 		}
 	}

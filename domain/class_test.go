@@ -12,15 +12,22 @@ func TestClass_HasRelation(t *testing.T) {
 	classC := Class{
 		Name: "C",
 	}
+	classD := Class{
+		Name: "D",
+	}
 	classB := Class{
 		Fields: Fields{
 			Field{
 				Type: Type("A"),
 			},
+			Field{
+				Type: Type("*D"),
+			},
 		},
 	}
 
 	assert.True(t, classB.HasRelation(classA))
+	assert.True(t, classB.HasRelation(classD))
 	assert.False(t, classB.HasRelation(classC))
 }
 
