@@ -103,6 +103,11 @@ func ParseFile(filePath string) domain.Classes {
 				}
 			}
 
+			// Handle the case where className could not be found in classes
+			if classIndex < 0 {
+				continue
+			}
+
 			if isPointer {
 				functionName = formatPointer(functionDecl.Name.Name)
 			} else {
