@@ -48,12 +48,3 @@ func TestClasses_ClassIndexByName(t *testing.T) {
 	assert.Equal(t, 2, classes.ClassIndexByName("C"))
 	assert.NotEqual(t, 0, classes.ClassIndexByName("C"))
 }
-
-func TestClasses_ClassIndexByPointerName(t *testing.T) {
-	classA := Class{Name: "A"}
-	classB := Class{Name: "B"}
-	classC := Class{Name: "C"}
-	classes := Classes{classA, classB, classC}
-	assert.Equal(t, 2, classes.ClassIndexByPointerName("*C"))
-	assert.Equal(t, -1, classes.ClassIndexByPointerName("C"))
-}

@@ -16,22 +16,37 @@ import (
 func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
 	var packages domain.Packages
 	files, err := ioutil.ReadDir(directoryPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	currentPackage := domain.Package{
+		FilePath:   directoryPath,
+		Name:       directoryPath,
+		Variables:  domain.Fields{},
+		Constants:  domain.Fields{},
+		Interfaces: domain.Interfaces{},
+		Classes:    domain.Classes{},
+		Functions:  domain.Functions{},
+	}
 	for _, file := range files {
 		fullPath := filepath.Join(directoryPath, file.Name())
 		if !file.IsDir() {
 			if filepath.Ext(file.Name()) != ".go" || strings.Contains(file.Name(), "_test") {
 				continue
 			}
-			packages = append(packages, ParseFile(fullPath))
+			parsedPackage := ParseFile(fullPath)
+			currentPackage = currentPackage.Add(parsedPackage)
 		} else {
 			if recursive {
 				packages = append(packages, ParseDirectory(fullPath, recursive)...)
 			}
 		}
 	}
-	if err != nil {
-		log.Fatal(err)
+
+	if !currentPackage.IsEmpty() {
+		packages = append(packages, currentPackage)
 	}
+
 	return packages
 }
 
@@ -119,7 +134,6 @@ func ParseFile(filePath string) domain.Package {
 	for _, decl := range node.Decls {
 		if functionDecl, ok := decl.(*ast.FuncDecl); ok {
 			var className string
-			var functionName string
 
 			// Function is not bound to a struct
 			if functionDecl.Recv == nil {
@@ -128,40 +142,27 @@ func ParseFile(filePath string) domain.Package {
 				continue
 			}
 
-			classField, err := exprToField("", functionDecl.Recv.List[0].Type)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			className = classField.Type.ToString()
-
-			isPointer := false
-			classIndex := domainPackage.Classes.ClassIndexByName(className)
-
-			if classIndex < 0 {
-				classIndex = domainPackage.Classes.ClassIndexByPointerName(className)
-				if classIndex > -1 {
-					isPointer = true
+			for _, receiverClass := range functionDecl.Recv.List {
+				classField, err := exprToField("", receiverClass.Type)
+				if err != nil {
+					log.Fatal(err)
 				}
+
+				className = classField.Type.ToClassString()
+				classIndex := domainPackage.Classes.ClassIndexByName(className)
+
+				// Handle the case where className could not be found in classes
+				if classIndex < 0 {
+					log.Printf("Could not find class: %s for function %s", className, functionDecl.Name.Name)
+					continue
+				}
+
+				function := createFunction(functionDecl.Name.Name, functionDecl)
+				domainPackage.Classes[classIndex].Functions = append(
+					domainPackage.Classes[classIndex].Functions,
+					function,
+				)
 			}
-
-			// Handle the case where className could not be found in classes
-			if classIndex < 0 {
-				continue
-			}
-
-			if isPointer {
-				functionName = formatPointer(functionDecl.Name.Name)
-			} else {
-				functionName = functionDecl.Name.Name
-			}
-
-			function := createFunction(functionName, functionDecl)
-
-			domainPackage.Classes[classIndex].Functions = append(
-				domainPackage.Classes[classIndex].Functions,
-				function,
-			)
 		}
 	}
 	return domainPackage

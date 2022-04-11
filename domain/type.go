@@ -1,5 +1,7 @@
 package domain
 
+import "strings"
+
 type (
 	Type string
 
@@ -8,4 +10,8 @@ type (
 
 func (t Type) ToString() string {
 	return string(t)
+}
+
+func (t Type) ToClassString() string {
+	return strings.ReplaceAll(string(t), "*", "")
 }

@@ -10,7 +10,6 @@ type (
 )
 
 func (domainInterface Interface) IsImplementedByClass(class Class) bool {
-	var allImplemented = true
 	for _, interfaceFunction := range domainInterface.Functions {
 		var interfaceFunctionIsImplemented = false
 		for _, classFunction := range class.Functions {
@@ -23,5 +22,5 @@ func (domainInterface Interface) IsImplementedByClass(class Class) bool {
 			return false
 		}
 	}
-	return allImplemented
+	return true
 }
