@@ -65,7 +65,7 @@ func ParseFile(filePath string) domain.Package {
 
 	domainPackage = domain.Package{
 		FilePath:   filePath,
-		Name:       dotNotatedModulePath(filePath, node.Name.Name),
+		Name:       filePath,
 		Interfaces: domain.Interfaces{},
 		Classes:    domain.Classes{},
 		Functions:  domain.Functions{},
@@ -216,15 +216,6 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 	default:
 		return nil, fmt.Errorf("unknown Field Type %s", reflect.TypeOf(expr).String())
 	}
-}
-
-func dotNotatedModulePath(filePath string, moduleName string) string {
-	dirPath := filepath.Dir(filePath)
-	modulePath := strings.ReplaceAll(dirPath, "/", ".")
-	if modulePath == "." {
-		return moduleName
-	}
-	return modulePath
 }
 
 func ParseField(field *ast.Field) (domain.Fields, error) {
