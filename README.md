@@ -7,7 +7,7 @@ go-plantuml generates plantuml diagrams from go source files or directories.
 ## Installation
 
 ```bash
-go install github.com/bykof/go-plantuml
+go install github.com/bykof/go-plantuml@latest
 ```
 
 Please consider that `$GOPATH/bin` should be on our `$PATH`.
