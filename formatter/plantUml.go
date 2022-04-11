@@ -130,14 +130,19 @@ func FormatPackage(domainPackage domain.Package) string {
 }
 
 func FormatFunction(function domain.Function) string {
+	var formattedReturnFields string
 	visibilityCharacter := "+"
 	if function.IsPrivate() {
 		visibilityCharacter = "-"
 	}
-	formattedReturnFields := FormatReturnFields(function.ReturnFields)
 	formattedParameters := FormatParameters(function.Parameters)
+
+	if len(function.ReturnFields) > 0 {
+		formattedReturnFields = fmt.Sprintf(": %s", FormatReturnFields(function.ReturnFields))
+	}
+
 	return fmt.Sprintf(
-		"%s%s(%s): %s",
+		"%s%s(%s)%s",
 		visibilityCharacter,
 		function.Name,
 		formattedParameters,

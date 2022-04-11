@@ -237,6 +237,12 @@ func ParseField(field *ast.Field) (domain.Fields, error) {
 			}
 			fields = append(fields, *parsedField)
 		}
+	} else {
+		parsedField, err := exprToField("", field.Type)
+		if err != nil {
+			return fields, err
+		}
+		fields = append(fields, *parsedField)
 	}
 	return fields, nil
 
