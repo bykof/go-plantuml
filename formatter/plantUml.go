@@ -14,7 +14,7 @@ const PlantUMLPackageFormat = `package %s{
 %s
 }`
 
-const PlantUMLAnnotationFormat = `annotation package {
+const PlantUMLAnnotationFormat = `annotation %s {
 %s
 %s
 }`
@@ -98,6 +98,11 @@ func FormatPackages(domainPackages domain.Packages) string {
 
 func FormatPackageAnnotations(domainPackage domain.Package) string {
 	var formattedPackageFunctions string
+
+	if len(domainPackage.Functions) == 0 && len(domainPackage.Constants) == 0 && len(domainPackage.Variables) == 0 {
+		return formattedPackageFunctions
+	}
+
 	if len(domainPackage.Functions) > 0 {
 		formattedPackageFunctions = FormatFunctions(domainPackage.Functions)
 	}
@@ -108,24 +113,32 @@ func FormatPackageAnnotations(domainPackage domain.Package) string {
 
 	return fmt.Sprintf(
 		PlantUMLAnnotationFormat,
+		domainPackage.Name,
 		strings.Join(formattedFields, "\n"),
 		formattedPackageFunctions,
 	)
 }
 
 func FormatPackage(domainPackage domain.Package) string {
+	var packageContent []string
 	formattedPackageAnnotations := FormatPackageAnnotations(domainPackage)
-	formattedInterfaces := FormatInterfaces(domainPackage.Interfaces)
-	formattedClasses := FormatClasses(domainPackage.Classes)
+	if formattedPackageAnnotations != "" {
+		packageContent = append(packageContent, formattedPackageAnnotations)
+	}
+
+	if len(domainPackage.Interfaces) > 0 {
+		packageContent = append(packageContent, FormatInterfaces(domainPackage.Interfaces))
+
+	}
+
+	if len(domainPackage.Classes) > 0 {
+		packageContent = append(packageContent, FormatClasses(domainPackage.Classes))
+	}
 
 	return fmt.Sprintf(
 		PlantUMLPackageFormat,
 		domainPackage.Name,
-		strings.Join([]string{
-			formattedPackageAnnotations,
-			formattedInterfaces,
-			formattedClasses,
-		}, "\n"),
+		strings.Join(packageContent, "\n"),
 	)
 }
 

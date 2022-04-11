@@ -120,7 +120,10 @@ func valueSpecToField(fieldName string, valueSpec *ast.ValueSpec) (*domain.Field
 	}
 
 	if valueSpec.Values != nil && len(valueSpec.Values) > 0 {
-		fieldType = valueSpec.Values[0].(*ast.BasicLit).Kind.String()
+		switch valueSpec.Values[0].(type) {
+		case *ast.BasicLit:
+			fieldType = valueSpec.Values[0].(*ast.BasicLit).Kind.String()
+		}
 	}
 
 	return &domain.Field{
