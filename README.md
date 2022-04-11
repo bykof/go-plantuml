@@ -1,5 +1,5 @@
 # go-plantuml 
-[![Build Status](https://travis-ci.com/bykof/go-plantuml.svg?branch=master)](https://travis-ci.com/bykof/go-plantuml)
+[![Build Status](https://github.com/bykof/go-plantuml/actions/workflows/test.yml/badge.svg)](https://github.com/bykof/go-plantuml/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bykof/go-plantuml)](https://goreportcard.com/report/github.com/bykof/go-plantuml)
 
 go-plantuml generates plantuml diagrams from go source files or directories.
