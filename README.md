@@ -81,7 +81,12 @@ type (
 )
 
 func (address Address) FullAddress(withPostalCode bool) string {
-	return fmt.Sprintf("%s %s %d", PackageVariable, AnotherPackageVariable, StartingStreetNumber)
+	return fmt.Sprintf(
+		"%s %s %d", 
+		PackageVariable, 
+		AnotherPackageVariable, 
+		StartingStreetNumber, 
+	)
 }
 
 ```
