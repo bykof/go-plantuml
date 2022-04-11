@@ -45,9 +45,8 @@ func Test_selectorExprToField(t *testing.T) {
 			},
 		),
 		domain.Field{
-			Name:    "test",
-			Type:    "testSelect",
-			Package: "testPackage",
+			Name: "test",
+			Type: "testSelect",
 		},
 	)
 }

@@ -6,7 +6,16 @@ import (
 	"strings"
 )
 
+const PlantUMLInterfaceFormat = `interface %s{
+%s
+}`
+
 const PlantUMLPackageFormat = `package %s{
+%s
+}`
+
+const PlantUMLAnnotationFormat = `annotation package {
+%s
 %s
 }`
 
@@ -33,6 +42,22 @@ func FormatFields(fields domain.Fields) string {
 		formattedFields = append(formattedFields, FormatField(field))
 	}
 	return strings.Join(formattedFields, "\n")
+}
+
+func FormatInterface(domainInterface domain.Interface) string {
+	return fmt.Sprintf(
+		PlantUMLInterfaceFormat,
+		domainInterface.Name,
+		FormatFunctions(domainInterface.Functions),
+	)
+}
+
+func FormatInterfaces(interfaces domain.Interfaces) string {
+	var formattedInteraces []string
+	for _, domainInterface := range interfaces {
+		formattedInteraces = append(formattedInteraces, FormatInterface(domainInterface))
+	}
+	return strings.Join(formattedInteraces, "\n")
 }
 
 func FormatParameter(parameter domain.Field) string {
@@ -63,6 +88,47 @@ func FormatPlantUMLWrapper(content ...string) string {
 	return fmt.Sprintf(PlantUMLWrapper, strings.Join(content, "\n"))
 }
 
+func FormatPackages(domainPackages domain.Packages) string {
+	var formattedPackages []string
+	for _, domainPackage := range domainPackages {
+		formattedPackages = append(formattedPackages, FormatPackage(domainPackage))
+	}
+	return strings.Join(formattedPackages, "\n")
+}
+
+func FormatPackageAnnotations(domainPackage domain.Package) string {
+	var formattedPackageFunctions string
+	if len(domainPackage.Functions) > 0 {
+		formattedPackageFunctions = FormatFunctions(domainPackage.Functions)
+	}
+
+	var formattedFields []string
+	formattedFields = append(formattedFields, FormatFields(domainPackage.Constants))
+	formattedFields = append(formattedFields, FormatFields(domainPackage.Variables))
+
+	return fmt.Sprintf(
+		PlantUMLAnnotationFormat,
+		strings.Join(formattedFields, "\n"),
+		formattedPackageFunctions,
+	)
+}
+
+func FormatPackage(domainPackage domain.Package) string {
+	formattedPackageAnnotations := FormatPackageAnnotations(domainPackage)
+	formattedInterfaces := FormatInterfaces(domainPackage.Interfaces)
+	formattedClasses := FormatClasses(domainPackage.Classes)
+
+	return fmt.Sprintf(
+		PlantUMLPackageFormat,
+		domainPackage.Name,
+		strings.Join([]string{
+			formattedPackageAnnotations,
+			formattedInterfaces,
+			formattedClasses,
+		}, "\n"),
+	)
+}
+
 func FormatFunction(function domain.Function) string {
 	visibilityCharacter := "+"
 	if function.IsPrivate() {
@@ -91,7 +157,7 @@ func FormatClass(class domain.Class) string {
 	formattedFields := FormatFields(class.Fields)
 	formattedFunctions := FormatFunctions(class.Functions)
 	formattedClass := fmt.Sprintf(PlantUMLClassFormat, class.Name, formattedFields, formattedFunctions)
-	return fmt.Sprintf(PlantUMLPackageFormat, class.Package, formattedClass)
+	return formattedClass
 }
 
 func FormatClasses(classes domain.Classes) string {
@@ -103,10 +169,14 @@ func FormatClasses(classes domain.Classes) string {
 	return strings.Join(formattedClasses, "\n")
 }
 
-func FormatPlantUML(classes domain.Classes) string {
-	formattedClasses := FormatClasses(classes)
-	formattedRelations := FormatRelations(classes)
-	return FormatPlantUMLWrapper(formattedClasses, formattedRelations)
+func FormatPlantUML(packages domain.Packages) string {
+	formattedPackages := FormatPackages(packages)
+	formattedRelations := FormatRelations(packages.AllClasses())
+	formattedImplementationRelations := FormatImplementationRelations(
+		packages.AllClasses(),
+		packages.AllInterfaces(),
+	)
+	return FormatPlantUMLWrapper(formattedPackages, formattedRelations, formattedImplementationRelations)
 }
 
 func FormatRelation(class domain.Class, class2 domain.Class) string {
@@ -129,4 +199,23 @@ func FormatRelations(classes domain.Classes) string {
 		}
 	}
 	return strings.Join(formattedRelations, "\n")
+}
+
+func FormatImplementationRelation(class domain.Class, domainInterface domain.Interface) string {
+	return fmt.Sprintf("%s --|> %s", class.Name, domainInterface.Name)
+}
+
+func FormatImplementationRelations(classes domain.Classes, domainInterfaces domain.Interfaces) string {
+	var formattedImplementationRelations []string
+	for _, class := range classes {
+		for _, domainInterface := range domainInterfaces {
+			if domainInterface.IsImplementedByClass(class) {
+				formattedImplementationRelations = append(
+					formattedImplementationRelations,
+					FormatImplementationRelation(class, domainInterface),
+				)
+			}
+		}
+	}
+	return strings.Join(formattedImplementationRelations, "\n")
 }

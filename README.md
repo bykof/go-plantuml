@@ -51,8 +51,26 @@ For example we have to files in the directory `test`.
 // address.go
 package models
 
+import "fmt"
+
+var (
+	EmptyVariable, AnotherEmptyVariable string
+	A, B                                = "1", 2
+	PackageVariable                     = "Teststreet"
+	AnotherPackageVariable              = "Anotherteststreet"
+)
+
+const (
+	StartingStreetNumber = 1
+)
+
 type (
+	AddressLike interface {
+		FullAddress(withPostalCode bool) string
+	}
+
 	Address struct {
+		A, B          string
 		Street        string
 		City          string
 		PostalCode    string
@@ -63,8 +81,9 @@ type (
 )
 
 func (address Address) FullAddress(withPostalCode bool) string {
-	return ""
+	return fmt.Sprintf("%s %s %d", PackageVariable, AnotherPackageVariable, StartingStreetNumber)
 }
+
 ```
 
 ```go
@@ -86,6 +105,11 @@ type (
 func (user *User) SetFirstName(firstName string) {
 	user.FirstName = firstName
 }
+
+func PackageFunction() string {
+	return "Hello World"
+}
+
 ```
 
 Then we run `go-plantuml generate` or `go-plantuml generate -d . -o graph.puml`.
@@ -94,7 +118,7 @@ This will create a `graph.puml` file and check for .go files inside your current
 
 Which looks like this:
 <p align="center">
-  <img src="https://raw.githubusercontent.com/bykof/go-plantuml/master/docs/assets/graph.png">
+  <img src="https://raw.githubusercontent.com/bykof/go-plantuml/master/docs/assets/graph.svg">
 </p>
 
 ## Contributing

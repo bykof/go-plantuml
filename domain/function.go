@@ -18,3 +18,11 @@ func (function Function) IsPrivate() bool {
 	}
 	return false
 }
+
+func (function Function) EqualImplementation(otherFunction Function) bool {
+	return function.Name == otherFunction.Name && function.Parameters.EqualImplementations(
+		otherFunction.Parameters,
+	) && function.ReturnFields.EqualImplementations(
+		otherFunction.ReturnFields,
+	)
+}

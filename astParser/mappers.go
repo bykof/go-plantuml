@@ -26,17 +26,9 @@ func identToField(fieldName string, ident *ast.Ident) domain.Field {
 }
 
 func selectorExprToField(fieldName string, selectorExpr *ast.SelectorExpr) domain.Field {
-	var packageName string
-	selectorField, err := exprToField("", selectorExpr.X)
-
-	if err == nil && selectorField != nil {
-		packageName = selectorField.Type.ToString()
-	}
-
 	return domain.Field{
-		Name:    fieldName,
-		Type:    domain.Type(selectorExpr.Sel.Name),
-		Package: domain.Package(packageName),
+		Name: fieldName,
+		Type: domain.Type(selectorExpr.Sel.Name),
 	}
 }
 
@@ -93,15 +85,9 @@ func mapTypeToField(fieldName string, mapType *ast.MapType) domain.Field {
 }
 
 func funcTypeToField(fieldName string, funcType *ast.FuncType) domain.Field {
-	function := domain.Function{}
-	if funcType.Params != nil {
-		function.Parameters = ParseFields(funcType.Params.List)
-	}
-	if funcType.Results != nil {
-		function.ReturnFields = ParseFields(funcType.Results.List)
-	}
+	function := funcTypeToFunction(fieldName, funcType)
 	return domain.Field{
-		Name: fieldName,
+		Name: function.Name,
 		Type: domain.Type(formatFuncType(function)),
 	}
 }
@@ -124,4 +110,34 @@ func chanTypeToField(fieldName string, chanType *ast.ChanType) domain.Field {
 		Name: fieldName,
 		Type: domain.Type(formatChanType(valueFieldType)),
 	}
+}
+
+func valueSpecToField(fieldName string, valueSpec *ast.ValueSpec) (*domain.Field, error) {
+	var fieldType string
+
+	if valueSpec.Type != nil {
+		return exprToField(fieldName, valueSpec.Type)
+	}
+
+	if valueSpec.Values != nil && len(valueSpec.Values) > 0 {
+		fieldType = valueSpec.Values[0].(*ast.BasicLit).Kind.String()
+	}
+
+	return &domain.Field{
+		Name: fieldName,
+		Type: domain.Type(fieldType),
+	}, nil
+}
+
+func funcTypeToFunction(fieldName string, funcType *ast.FuncType) domain.Function {
+	function := domain.Function{
+		Name: fieldName,
+	}
+	if funcType.Params != nil {
+		function.Parameters = ParseFields(funcType.Params.List)
+	}
+	if funcType.Results != nil {
+		function.ReturnFields = ParseFields(funcType.Results.List)
+	}
+	return function
 }

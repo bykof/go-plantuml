@@ -15,3 +15,7 @@ type (
 func (user *User) SetFirstName(firstName string) {
 	user.FirstName = firstName
 }
+
+func PackageFunction() string {
+	return "Hello World"
+}

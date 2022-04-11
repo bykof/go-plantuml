@@ -19,16 +19,16 @@ var (
 		Short: "Generate a plantuml diagram from given paths",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
-			var classes domain.Classes
+			var packages domain.Packages
 			for _, file := range files {
-				classes = append(classes, astParser.ParseFile(file)...)
+				packages = append(packages, astParser.ParseFile(file))
 			}
 
 			for _, directory := range directories {
-				classes = append(classes, astParser.ParseDirectory(directory, recursive)...)
+				packages = append(packages, astParser.ParseDirectory(directory, recursive)...)
 			}
 
-			formattedPlantUML := formatter.FormatPlantUML(classes)
+			formattedPlantUML := formatter.FormatPlantUML(packages)
 			err := ioutil.WriteFile(outPath, []byte(formattedPlantUML), 0644)
 			if err != nil {
 				log.Fatal(err)

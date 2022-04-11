@@ -1,7 +1,6 @@
 package astParser
 
 import (
-	"errors"
 	"fmt"
 	"github.com/bykof/go-plantuml/domain"
 	"go/ast"
@@ -14,8 +13,8 @@ import (
 	"strings"
 )
 
-func ParseDirectory(directoryPath string, recursive bool) domain.Classes {
-	var classes domain.Classes
+func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
+	var packages domain.Packages
 	files, err := ioutil.ReadDir(directoryPath)
 	for _, file := range files {
 		fullPath := filepath.Join(directoryPath, file.Name())
@@ -23,52 +22,97 @@ func ParseDirectory(directoryPath string, recursive bool) domain.Classes {
 			if filepath.Ext(file.Name()) != ".go" || strings.Contains(file.Name(), "_test") {
 				continue
 			}
-			classes = append(classes, ParseFile(fullPath)...)
+			packages = append(packages, ParseFile(fullPath))
 		} else {
 			if recursive {
-				classes = append(classes, ParseDirectory(fullPath, recursive)...)
+				packages = append(packages, ParseDirectory(fullPath, recursive)...)
 			}
 		}
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	return classes
+	return packages
 }
 
-func ParseFile(filePath string) domain.Classes {
-	var classes domain.Classes
+func ParseFile(filePath string) domain.Package {
+	var domainPackage domain.Package
+
 	node, err := parser.ParseFile(
 		token.NewFileSet(),
 		filePath,
 		nil,
 		parser.ParseComments,
 	)
-
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	domainPackage = domain.Package{
+		FilePath:   filePath,
+		Name:       dotNotatedModulePath(filePath, node.Name.Name),
+		Interfaces: domain.Interfaces{},
+		Classes:    domain.Classes{},
+		Functions:  domain.Functions{},
+		Constants:  domain.Fields{},
+		Variables:  domain.Fields{},
 	}
 
 	if node.Scope != nil {
 		for name, object := range node.Scope.Objects {
 			// If object is not a type
-			if object.Kind != ast.Typ {
-				continue
-			}
-			typeSpec := object.Decl.(*ast.TypeSpec)
-			structType, ok := typeSpec.Type.(*ast.StructType)
-			// We are probably dealing with interface types
-			if !ok {
-				continue
-			}
+			switch object.Kind {
+			case ast.Var:
+				field, err := valueSpecToField(object.Name, object.Decl.(*ast.ValueSpec))
+				if err != nil {
+					log.Fatal(err)
+				}
+				field.Name = fmt.Sprintf("var %s", field.Name)
+				domainPackage.Variables = append(domainPackage.Variables, *field)
+			case ast.Con:
+				field, err := valueSpecToField(object.Name, object.Decl.(*ast.ValueSpec))
+				if err != nil {
+					log.Fatal(err)
+				}
+				field.Name = fmt.Sprintf("const %s", field.Name)
+				domainPackage.Constants = append(domainPackage.Constants, *field)
+			case ast.Typ:
+				typeSpec := object.Decl.(*ast.TypeSpec)
 
-			class := domain.Class{
-				Name:    name,
-				Package: domain.Package(dotNotatedModulePath(filePath, node.Name.Name)),
-				Fields:  ParseFields(structType.Fields.List),
-			}
+				switch typeSpec.Type.(type) {
+				case *ast.StructType:
+					structType := typeSpec.Type.(*ast.StructType)
+					class := domain.Class{
+						Name:   name,
+						Fields: ParseFields(structType.Fields.List),
+					}
 
-			classes = append(classes, class)
+					domainPackage.Classes = append(domainPackage.Classes, class)
+				case *ast.InterfaceType:
+					var functions domain.Functions
+					interfaceType := typeSpec.Type.(*ast.InterfaceType)
+
+					for _, field := range interfaceType.Methods.List {
+						if funcType, ok := field.Type.(*ast.FuncType); ok {
+							parsedFields, err := ParseField(field)
+							if err != nil {
+								log.Fatal(err)
+							}
+							for _, parsedField := range parsedFields {
+								functions = append(functions, funcTypeToFunction(parsedField.Name, funcType))
+							}
+
+						}
+					}
+
+					domainInterface := domain.Interface{
+						Name:      name,
+						Functions: functions,
+					}
+
+					domainPackage.Interfaces = append(domainPackage.Interfaces, domainInterface)
+				}
+			}
 		}
 	}
 
@@ -79,6 +123,8 @@ func ParseFile(filePath string) domain.Classes {
 
 			// Function is not bound to a struct
 			if functionDecl.Recv == nil {
+				function := createFunction(functionDecl.Name.Name, functionDecl)
+				domainPackage.Functions = append(domainPackage.Functions, function)
 				continue
 			}
 
@@ -89,15 +135,11 @@ func ParseFile(filePath string) domain.Classes {
 
 			className = classField.Type.ToString()
 
-			if len(classes) == 0 {
-				return classes
-			}
-
 			isPointer := false
-			classIndex := classes.ClassIndexByName(className)
+			classIndex := domainPackage.Classes.ClassIndexByName(className)
 
 			if classIndex < 0 {
-				classIndex = classes.ClassIndexByPointerName(className)
+				classIndex = domainPackage.Classes.ClassIndexByPointerName(className)
 				if classIndex > -1 {
 					isPointer = true
 				}
@@ -116,10 +158,13 @@ func ParseFile(filePath string) domain.Classes {
 
 			function := createFunction(functionName, functionDecl)
 
-			classes[classIndex].Functions = append(classes[classIndex].Functions, function)
+			domainPackage.Classes[classIndex].Functions = append(
+				domainPackage.Classes[classIndex].Functions,
+				function,
+			)
 		}
 	}
-	return classes
+	return domainPackage
 }
 
 func createFunction(name string, functionDecl *ast.FuncDecl) domain.Function {
@@ -181,28 +226,31 @@ func dotNotatedModulePath(filePath string, moduleName string) string {
 	return modulePath
 }
 
-func ParseField(field *ast.Field) (*domain.Field, error) {
-	var fieldName string
+func ParseField(field *ast.Field) (domain.Fields, error) {
+	var fields domain.Fields
 
 	if field.Names != nil && len(field.Names) > 0 {
-		fieldName = field.Names[0].Name
+		for _, fieldName := range field.Names {
+			parsedField, err := exprToField(fieldName.Name, field.Type)
+			if err != nil {
+				return fields, err
+			}
+			fields = append(fields, *parsedField)
+		}
 	}
-	return exprToField(fieldName, field.Type)
+	return fields, nil
 
 }
 
 func ParseFields(fieldList []*ast.Field) domain.Fields {
 	fields := domain.Fields{}
 	for _, field := range fieldList {
-		parsedField, err := ParseField(field)
+		parsedFields, err := ParseField(field)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if parsedField == nil {
-			log.Fatal(errors.New("unexpected error: parsedField is nil"))
-		}
-		fields = append(fields, *parsedField)
+		fields = append(fields, parsedFields...)
 	}
 	return fields
 }

@@ -7,7 +7,6 @@ import (
 type (
 	Class struct {
 		Name      string
-		Package   Package
 		Fields    Fields
 		Functions Functions
 	}
