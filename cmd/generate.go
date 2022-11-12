@@ -32,6 +32,10 @@ var (
 				options = append(options, astParser.WithRecursive())
 			}
 
+			if exclusion!=""{
+				options = append(options, astParser.WithFileExclusion(exclusion))
+			}
+
 			for _, directory := range directories {
 				packages = append(packages, astParser.ParseDirectory(directory, options...)...)
 			}
