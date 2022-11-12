@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"io/ioutil"
+	"log"
+
+	"github.com/spf13/cobra"
+
 	"github.com/bykof/go-plantuml/astParser"
 	"github.com/bykof/go-plantuml/domain"
 	"github.com/bykof/go-plantuml/formatter"
-	"github.com/spf13/cobra"
-	"io/ioutil"
-	"log"
 )
 
 var (

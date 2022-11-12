@@ -2,7 +2,6 @@ package astParser
 
 import (
 	"fmt"
-	"github.com/bykof/go-plantuml/domain"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 func ParseDirectory(directoryPath string, recursive bool) domain.Packages {

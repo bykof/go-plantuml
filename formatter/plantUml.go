@@ -2,8 +2,9 @@ package formatter
 
 import (
 	"fmt"
-	"github.com/bykof/go-plantuml/domain"
 	"strings"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 const PlantUMLInterfaceFormat = `interface %s{
