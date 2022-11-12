@@ -76,7 +76,7 @@ func init() {
 	)
 	generateCmd.Flags().StringVarP(
 		&exclusion,
-		"exclusion",
+		"exclude",
 		"x",
 		"",
 		"exclude file matching given regex expression, not used if using -f flag",

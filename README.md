@@ -1,4 +1,4 @@
-# go-plantuml 
+# go-plantuml
 [![Build Status](https://github.com/bykof/go-plantuml/actions/workflows/test.yml/badge.svg)](https://github.com/bykof/go-plantuml/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bykof/go-plantuml)](https://goreportcard.com/report/github.com/bykof/go-plantuml)
 
@@ -41,6 +41,7 @@ Flags:
   -h, --help                  help for generate
   -o, --out string            the graphfile (default "graph.puml")
   -r, --recursive             traverse the given directories recursively
+  -x, --exclude               exclude file matching given regex expression, not used if using -f flag
 ```
 
 ## Example
@@ -82,10 +83,10 @@ type (
 
 func (address Address) FullAddress(withPostalCode bool) string {
 	return fmt.Sprintf(
-		"%s %s %d", 
-		PackageVariable, 
-		AnotherPackageVariable, 
-		StartingStreetNumber, 
+		"%s %s %d",
+		PackageVariable,
+		AnotherPackageVariable,
+		StartingStreetNumber,
 	)
 }
 
