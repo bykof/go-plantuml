@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"io/ioutil"
+	"log"
+
+	"github.com/spf13/cobra"
+
 	"github.com/bykof/go-plantuml/astParser"
 	"github.com/bykof/go-plantuml/domain"
 	"github.com/bykof/go-plantuml/formatter"
-	"github.com/spf13/cobra"
-	"io/ioutil"
-	"log"
 )
 
 var (
@@ -24,8 +26,13 @@ var (
 				packages = append(packages, astParser.ParseFile(file))
 			}
 
+			options := []astParser.ParserOptionFunc{}
+			if recursive {
+				options = append(options, astParser.WithRecursive())
+			}
+
 			for _, directory := range directories {
-				packages = append(packages, astParser.ParseDirectory(directory, recursive)...)
+				packages = append(packages, astParser.ParseDirectory(directory, options...)...)
 			}
 
 			formattedPlantUML := formatter.FormatPlantUML(packages)

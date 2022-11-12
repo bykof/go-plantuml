@@ -2,7 +2,6 @@ package astParser
 
 import (
 	"fmt"
-	"github.com/bykof/go-plantuml/domain"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -10,10 +9,18 @@ import (
 	"log"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
-func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
+func ParseDirectory(directoryPath string, opts ...ParserOptionFunc) domain.Packages {
+	options := &parserOptions{}
+	for _, opt := range opts {
+		opt(options)
+	}
+
 	var packages domain.Packages
 	files, err := ioutil.ReadDir(directoryPath)
 	if err != nil {
@@ -31,14 +38,15 @@ func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
 	for _, file := range files {
 		fullPath := filepath.Join(directoryPath, file.Name())
 		if !file.IsDir() {
-			if filepath.Ext(file.Name()) != ".go" || strings.Contains(file.Name(), "_test") {
+			if isExcluded(file.Name(), options.excludedFilesRegex) {
 				continue
 			}
+
 			parsedPackage := ParseFile(fullPath)
 			currentPackage = currentPackage.Add(parsedPackage)
 		} else {
-			if recursive {
-				packages = append(packages, ParseDirectory(fullPath, recursive)...)
+			if options.recursive {
+				packages = append(packages, ParseDirectory(fullPath, opts...)...)
 			}
 		}
 	}
@@ -48,6 +56,26 @@ func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
 	}
 
 	return packages
+}
+
+func isExcluded(fileName string, regex *regexp.Regexp) bool {
+	if filepath.Ext(fileName) != ".go" {
+		return true
+	}
+
+	if strings.HasSuffix(fileName, "_test.go") {
+		return true
+	}
+
+	if regex == nil {
+		return false
+	}
+
+	if regex.Match([]byte(fileName)) {
+		return true
+	}
+
+	return false
 }
 
 func ParseFile(filePath string) domain.Package {
