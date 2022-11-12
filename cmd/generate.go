@@ -15,6 +15,7 @@ var (
 	outPath     string
 	directories []string
 	files       []string
+	exclusion   string
 	recursive   bool
 	generateCmd = &cobra.Command{
 		Use:   "generate",
@@ -72,6 +73,13 @@ func init() {
 		"r",
 		false,
 		"traverse the given directories recursively",
+	)
+	generateCmd.Flags().StringVarP(
+		&exclusion,
+		"exclusion",
+		"x",
+		"",
+		"exclude file matching given regex expression, not used if using -f flag",
 	)
 	rootCmd.AddCommand(generateCmd)
 }
