@@ -5,8 +5,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -16,7 +16,7 @@ import (
 
 func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
 	var packages domain.Packages
-	files, err := ioutil.ReadDir(directoryPath)
+	files, err := os.ReadDir(directoryPath)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -31,7 +31,7 @@ var (
 			}
 
 			formattedPlantUML := formatter.FormatPlantUML(packages)
-			err := ioutil.WriteFile(outPath, []byte(formattedPlantUML), 0644)
+			err := os.WriteFile(outPath, []byte(formattedPlantUML), 0644)
 			if err != nil {
 				log.Fatal(err)
 			}

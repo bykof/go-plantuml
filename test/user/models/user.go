@@ -8,7 +8,6 @@ type (
 		LastName       string
 		Age            uint8
 		Address        *models.Address
-		privateAddress models.Address
 	}
 )
 
