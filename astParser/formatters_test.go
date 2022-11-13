@@ -1,9 +1,11 @@
 package astParser
 
 import (
-	"github.com/bykof/go-plantuml/domain"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 func Test_formatArrayType(t *testing.T) {

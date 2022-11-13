@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestField_IsPrivate(t *testing.T) {

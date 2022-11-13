@@ -2,8 +2,9 @@ package astParser
 
 import (
 	"fmt"
-	"github.com/bykof/go-plantuml/domain"
 	"strings"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 func formatArrayType(typeName string) string {
