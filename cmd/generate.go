@@ -15,6 +15,7 @@ var (
 	outPath     string
 	directories []string
 	files       []string
+	exclusion   string
 	recursive   bool
 	generateCmd = &cobra.Command{
 		Use:   "generate",
@@ -26,8 +27,17 @@ var (
 				packages = append(packages, astParser.ParseFile(file))
 			}
 
+			options := []astParser.ParserOptionFunc{}
+			if recursive {
+				options = append(options, astParser.WithRecursive())
+			}
+
+			if exclusion!=""{
+				options = append(options, astParser.WithFileExclusion(exclusion))
+			}
+
 			for _, directory := range directories {
-				packages = append(packages, astParser.ParseDirectory(directory, recursive)...)
+				packages = append(packages, astParser.ParseDirectory(directory, options...)...)
 			}
 
 			formattedPlantUML := formatter.FormatPlantUML(packages)
@@ -67,6 +77,13 @@ func init() {
 		"r",
 		false,
 		"traverse the given directories recursively",
+	)
+	generateCmd.Flags().StringVarP(
+		&exclusion,
+		"exclude",
+		"x",
+		"",
+		"exclude file matching given regex expression, not used if using -f flag",
 	)
 	rootCmd.AddCommand(generateCmd)
 }
