@@ -1,10 +1,12 @@
 package astParser
 
 import (
-	"github.com/bykof/go-plantuml/domain"
-	"github.com/magiconair/properties/assert"
 	"go/ast"
 	"testing"
+
+	"github.com/magiconair/properties/assert"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 func Test_starExprToField(t *testing.T) {

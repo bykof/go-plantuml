@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"log"
+	"os"
+
+	"github.com/spf13/cobra"
+
 	"github.com/bykof/go-plantuml/astParser"
 	"github.com/bykof/go-plantuml/domain"
 	"github.com/bykof/go-plantuml/formatter"
-	"github.com/spf13/cobra"
-	"io/ioutil"
-	"log"
 )
 
 var (
@@ -29,7 +31,7 @@ var (
 			}
 
 			formattedPlantUML := formatter.FormatPlantUML(packages)
-			err := ioutil.WriteFile(outPath, []byte(formattedPlantUML), 0644)
+			err := os.WriteFile(outPath, []byte(formattedPlantUML), 0644)
 			if err != nil {
 				log.Fatal(err)
 			}

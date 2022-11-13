@@ -2,20 +2,21 @@ package astParser
 
 import (
 	"fmt"
-	"github.com/bykof/go-plantuml/domain"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 func ParseDirectory(directoryPath string, recursive bool) domain.Packages {
 	var packages domain.Packages
-	files, err := ioutil.ReadDir(directoryPath)
+	files, err := os.ReadDir(directoryPath)
 	if err != nil {
 		log.Fatal(err)
 	}

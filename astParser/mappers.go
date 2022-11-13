@@ -1,8 +1,9 @@
 package astParser
 
 import (
-	"github.com/bykof/go-plantuml/domain"
 	"go/ast"
+
+	"github.com/bykof/go-plantuml/domain"
 )
 
 func starExprToField(fieldName string, starExpr *ast.StarExpr) domain.Field {
