@@ -32,7 +32,7 @@ var (
 				options = append(options, astParser.WithRecursive())
 			}
 
-			if exclusion!=""{
+			if exclusion != "" {
 				options = append(options, astParser.WithFileExclusion(exclusion))
 			}
 
