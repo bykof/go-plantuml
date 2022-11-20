@@ -199,7 +199,7 @@ func FormatPlantUML(packages domain.Packages) string {
 }
 
 func FormatRelation(class domain.Class, class2 domain.Class) string {
-	return fmt.Sprintf("%s --> %s", class.Name, class2.Name)
+	return fmt.Sprintf(`"%s" --> "%s"`, class.Name, class2.Name)
 }
 
 func FormatRelations(classes domain.Classes) string {
@@ -221,7 +221,7 @@ func FormatRelations(classes domain.Classes) string {
 }
 
 func FormatImplementationRelation(class domain.Class, domainInterface domain.Interface) string {
-	return fmt.Sprintf("%s --|> %s", class.Name, domainInterface.Name)
+	return fmt.Sprintf(`"%s" --|> "%s"`, class.Name, domainInterface.Name)
 }
 
 func FormatImplementationRelations(classes domain.Classes, domainInterfaces domain.Interfaces) string {

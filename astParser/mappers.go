@@ -1,6 +1,7 @@
 package astParser
 
 import (
+	"fmt"
 	"go/ast"
 
 	"github.com/bykof/go-plantuml/domain"
@@ -98,6 +99,22 @@ func structTypeToField(fieldName string, structType *ast.StructType) domain.Fiel
 		Name: fieldName,
 		Type: "interface{}",
 	}
+}
+func indexExprToField(fieldName string, indexExpr *ast.IndexExpr) (domain.Field, error) {
+	innerType, err := exprToField("", indexExpr.Index)
+	if err != nil {
+		return domain.Field{}, err
+	}
+
+	outerType, err := exprToField("", indexExpr.X)
+	if err != nil {
+		return domain.Field{}, err
+	}
+
+	return domain.Field{
+		Name: fieldName,
+		Type: domain.Type(fmt.Sprintf("%s[%s]", outerType.Type, innerType.Type)),
+	}, nil
 }
 
 func chanTypeToField(fieldName string, chanType *ast.ChanType) domain.Field {

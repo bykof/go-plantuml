@@ -122,6 +122,17 @@ func ParseFile(filePath string) domain.Package {
 			case ast.Typ:
 				typeSpec := object.Decl.(*ast.TypeSpec)
 
+				if typeSpec.TypeParams != nil {
+					var params []string
+					for _, v := range typeSpec.TypeParams.List {
+						for _, v := range v.Names {
+							params = append(params, v.String())
+						}
+					}
+					if len(params) > 0 {
+						name = name + "[" + strings.Join(params, ",") + "]"
+					}
+				}
 				switch typeSpec.Type.(type) {
 				case *ast.StructType:
 					structType := typeSpec.Type.(*ast.StructType)
@@ -241,6 +252,9 @@ func exprToField(fieldName string, expr ast.Expr) (*domain.Field, error) {
 	case *ast.ChanType:
 		field := chanTypeToField(fieldName, fieldType)
 		return &field, nil
+	case *ast.IndexExpr: // generic goes here
+		field, err := indexExprToField(fieldName, fieldType)
+		return &field, err
 	default:
 		return nil, fmt.Errorf("unknown Field Type %s", reflect.TypeOf(expr).String())
 	}

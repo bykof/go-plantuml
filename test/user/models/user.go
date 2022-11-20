@@ -4,10 +4,10 @@ import "github.com/bykof/go-plantuml/test/address/models"
 
 type (
 	User struct {
-		FirstName      string
-		LastName       string
-		Age            uint8
-		Address        *models.Address
+		FirstName string
+		LastName  string
+		Age       uint8
+		Address   *models.Address
 	}
 )
 
