@@ -4,6 +4,7 @@
 [![go-recipes](https://raw.githubusercontent.com/nikolaydubina/go-recipes/main/badge.svg?raw=true)](https://github.com/nikolaydubina/go-recipes)
 
 go-plantuml generates plantuml diagrams from go source files or directories.
+It supports generic fields.
 
 ## Installation
 
