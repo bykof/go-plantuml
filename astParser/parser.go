@@ -15,6 +15,8 @@ import (
 	"github.com/bykof/go-plantuml/domain"
 )
 
+var earlySeenFunctions map[string]domain.Functions
+
 func ParseDirectory(directoryPath string, opts ...ParserOptionFunc) domain.Packages {
 	options := &parserOptions{}
 	for _, opt := range opts {
@@ -26,6 +28,8 @@ func ParseDirectory(directoryPath string, opts ...ParserOptionFunc) domain.Packa
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	earlySeenFunctions = make(map[string]domain.Functions)
 	currentPackage := domain.Package{
 		FilePath:   directoryPath,
 		Name:       directoryPath,
@@ -53,6 +57,13 @@ func ParseDirectory(directoryPath string, opts ...ParserOptionFunc) domain.Packa
 
 	if !currentPackage.IsEmpty() {
 		packages = append(packages, currentPackage)
+	}
+
+	// Handle the case where className could not be found in classes
+	for className, earlyFuncs := range earlySeenFunctions {
+		for _, function := range earlyFuncs {
+			log.Printf("Could not find class: %s for function %s", className, function.Name)
+		}
 	}
 
 	return packages
@@ -141,6 +152,7 @@ func ParseFile(filePath string) domain.Package {
 						Fields: ParseFields(structType.Fields.List),
 					}
 
+					addEarlyFunctions(&class)
 					domainPackage.Classes = append(domainPackage.Classes, class)
 				case *ast.InterfaceType:
 					var functions domain.Functions
@@ -165,6 +177,13 @@ func ParseFile(filePath string) domain.Package {
 					}
 
 					domainPackage.Interfaces = append(domainPackage.Interfaces, domainInterface)
+				default:
+					class := domain.Class{
+						Name: name,
+					}
+
+					addEarlyFunctions(&class)
+					domainPackage.Classes = append(domainPackage.Classes, class)
 				}
 			}
 		}
@@ -190,21 +209,27 @@ func ParseFile(filePath string) domain.Package {
 				className = classField.Type.ToClassString()
 				classIndex := domainPackage.Classes.ClassIndexByName(className)
 
-				// Handle the case where className could not be found in classes
-				if classIndex < 0 {
-					log.Printf("Could not find class: %s for function %s", className, functionDecl.Name.Name)
-					continue
-				}
+				function := createFunction(functionDecl.Name.Name, functionDecl) // Handle the case where className could not be found in classes
 
-				function := createFunction(functionDecl.Name.Name, functionDecl)
-				domainPackage.Classes[classIndex].Functions = append(
-					domainPackage.Classes[classIndex].Functions,
-					function,
-				)
+				if classIndex < 0 {
+					earlySeenFunctions[className] = append(earlySeenFunctions[className], function)
+				} else {
+					domainPackage.Classes[classIndex].Functions = append(
+						domainPackage.Classes[classIndex].Functions,
+						function,
+					)
+				}
 			}
 		}
 	}
 	return domainPackage
+}
+
+func addEarlyFunctions(class *domain.Class) {
+	if funcs, ok := earlySeenFunctions[class.Name]; ok {
+		class.Functions = append(class.Functions, funcs...)
+		delete(earlySeenFunctions, class.Name)
+	}
 }
 
 func createFunction(name string, functionDecl *ast.FuncDecl) domain.Function {
