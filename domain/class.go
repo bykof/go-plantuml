@@ -18,7 +18,9 @@ func (class Class) HasRelation(toClass Class) bool {
 	for _, field := range class.Fields {
 		fieldTypeName := string(field.Type)
 
-		fieldTypeName = strings.TrimPrefix(fieldTypeName, "*")
+		for _, prefix := range []string{"*", "[]"} {
+			fieldTypeName = strings.TrimPrefix(fieldTypeName, prefix)
+		}
 
 		if fieldTypeName == toClass.Name {
 			return true
