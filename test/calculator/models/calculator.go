@@ -4,7 +4,6 @@ import (
 	"github.com/bykof/go-plantuml/test/user/models"
 )
 
-
 type Number interface {
 	~int | ~float32
 }
