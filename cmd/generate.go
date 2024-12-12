@@ -16,6 +16,7 @@ var (
 	directories []string
 	files       []string
 	exclusion   string
+	leftToRight bool
 	recursive   bool
 	generateCmd = &cobra.Command{
 		Use:   "generate",
@@ -27,7 +28,7 @@ var (
 				packages = append(packages, astParser.ParseFile(file))
 			}
 
-			options := []astParser.ParserOptionFunc{}
+			var options []astParser.ParserOptionFunc
 			if recursive {
 				options = append(options, astParser.WithRecursive())
 			}
@@ -40,7 +41,8 @@ var (
 				packages = append(packages, astParser.ParseDirectory(directory, options...)...)
 			}
 
-			formattedPlantUML := formatter.FormatPlantUML(packages)
+			var formatterOptions = formatter.FormatterOptions{LeftToRight: leftToRight}
+			formattedPlantUML := formatter.FormatPlantUML(packages, formatterOptions)
 			err := os.WriteFile(outPath, []byte(formattedPlantUML), 0644)
 			if err != nil {
 				log.Fatal(err)
@@ -77,6 +79,13 @@ func init() {
 		"r",
 		false,
 		"traverse the given directories recursively",
+	)
+	generateCmd.Flags().BoolVarP(
+		&leftToRight,
+		"left-to-right",
+		"l",
+		false,
+		"display the UML diagram left to right (default: top to bottom)",
 	)
 	generateCmd.Flags().StringVarP(
 		&exclusion,

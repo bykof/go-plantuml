@@ -175,10 +175,17 @@ func TestFormatClasses(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestFormatPlantUML(t *testing.T) {
+func TestFormatPlantUML_default(t *testing.T) {
 	packages := domain.Packages{}
-	expected := "@startuml\n\n\n\n@enduml"
-	result := FormatPlantUML(packages)
+	expected := "@startuml\ntop to bottom direction\n\n\n\n@enduml"
+	result := FormatPlantUML(packages, FormatterOptions{LeftToRight: false})
+	assert.Equal(t, expected, result)
+}
+
+func TestFormatPlantUML_left_to_right(t *testing.T) {
+	packages := domain.Packages{}
+	expected := "@startuml\nleft to right direction\n\n\n\n@enduml"
+	result := FormatPlantUML(packages, FormatterOptions{LeftToRight: true})
 	assert.Equal(t, expected, result)
 }
 

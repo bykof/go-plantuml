@@ -29,6 +29,9 @@ const PlantUMLWrapper = `@startuml
 %s
 @enduml`
 
+const PlantUMLTopToBottomDirection = "top to bottom direction"
+const PlantUMLLeftToRightDirection = "left to right direction"
+
 func FormatField(field domain.Field) string {
 	visibilityCharacter := "+"
 	if field.IsPrivate() {
@@ -188,14 +191,20 @@ func FormatClasses(classes domain.Classes) string {
 	return strings.Join(formattedClasses, "\n")
 }
 
-func FormatPlantUML(packages domain.Packages) string {
+func FormatPlantUML(packages domain.Packages, formatterOptions FormatterOptions) string {
+	var direction = PlantUMLTopToBottomDirection
+
+	if formatterOptions.LeftToRight {
+		direction = PlantUMLLeftToRightDirection
+	}
+
 	formattedPackages := FormatPackages(packages)
 	formattedRelations := FormatRelations(packages.AllClasses())
 	formattedImplementationRelations := FormatImplementationRelations(
 		packages.AllClasses(),
 		packages.AllInterfaces(),
 	)
-	return FormatPlantUMLWrapper(formattedPackages, formattedRelations, formattedImplementationRelations)
+	return FormatPlantUMLWrapper(direction, formattedPackages, formattedRelations, formattedImplementationRelations)
 }
 
 func FormatRelation(class domain.Class, class2 domain.Class) string {
