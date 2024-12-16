@@ -18,10 +18,13 @@ Please consider that `$GOPATH/bin` should be on our `$PATH`.
 ## Usage
 
 ```bash
+Generate plantuml diagrams from go sources
+
 Usage:
   go-plantuml [command]
 
 Available Commands:
+  completion  Generate the autocompletion script for the specified shell
   generate    Generate a plantuml diagram from given paths
   help        Help about any command
 
@@ -30,20 +33,22 @@ Flags:
   -t, --toggle   Help message for toggle
 
 Use "go-plantuml [command] --help" for more information about a command.
-
 ```
 
 ```bash
+Generate a plantuml diagram from given paths
+
 Usage:
   go-plantuml generate [flags]
 
 Flags:
   -d, --directories strings   the go source directories (default [.])
+  -x, --exclude string        exclude file matching given regex expression, not used if using -f flag
   -f, --files strings         the go source files
   -h, --help                  help for generate
+  -l, --left-to-right         display the UML diagram left to right (default: top to bottom)
   -o, --out string            the graphfile (default "graph.puml")
   -r, --recursive             traverse the given directories recursively
-  -x, --exclude               exclude file matching given regex expression, not used if using -f flag
 ```
 
 ## Example
